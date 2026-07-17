@@ -5,19 +5,27 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    private enum State { Start, Playing, GameOver }
+
     [SerializeField] private Spotlight spotlight;
     [SerializeField] private ActorSpawner spawner;
     [SerializeField] private GameObject darknessOverlay;
     [SerializeField] private GameObject robberMarker;
+    [SerializeField] private GameObject startPanel;
     [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private TextMeshProUGUI levelText;
-    [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private GameObject levelText;
+    [SerializeField] private GameObject timerText;
+    [SerializeField] private TextMeshProUGUI levelLabel;
+    [SerializeField] private TextMeshProUGUI timerLabel;
     [SerializeField] private TextMeshProUGUI gameOverText;
+    [SerializeField] private TextMeshProUGUI promptText;
 
     [SerializeField] private Image flashImage;
     [SerializeField] private Color winFlash = new Color(0.25f, 1f, 0.4f, 0.55f);
     [SerializeField] private Color loseFlash = new Color(1f, 0.2f, 0.2f, 0.7f);
     [SerializeField] private float flashDuration = 0.35f;
+
+    [SerializeField] private float promptPulseSpeed = 2.5f;
 
     [SerializeField] private int baseDecoys = 4;
     [SerializeField] private int decoysPerLevel = 1;
@@ -39,22 +47,29 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float timeLimitStep = 1f;
     [SerializeField] private float minTimeLimit = 8f;
 
+    private State state = State.Start;
     private int level = 1;
     private float timeLeft;
-    private bool playing;
     private Coroutine flashRoutine;
 
     private void Start()
     {
-        StartLevel();
+        ShowStartScreen();
     }
 
     private void Update()
     {
-        if (playing)
+        if (state == State.Start)
+        {
+            PulsePrompt();
+            if (Input.GetKeyDown(KeyCode.Space)) BeginRun();
+            return;
+        }
+
+        if (state == State.Playing)
         {
             timeLeft -= Time.deltaTime;
-            timerText.text = Mathf.CeilToInt(Mathf.Max(0f, timeLeft)).ToString();
+            timerLabel.text = Mathf.CeilToInt(Mathf.Max(0f, timeLeft)).ToString();
 
             if (timeLeft <= 0f)
             {
@@ -63,11 +78,10 @@ public class GameManager : MonoBehaviour
             }
 
             if (Input.GetKeyDown(KeyCode.Space)) TryCatch();
+            return;
         }
-        else
-        {
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) Restart();
-        }
+
+        if (Input.GetKeyDown(KeyCode.Space)) Restart();
     }
 
     public void Restart()
@@ -76,11 +90,34 @@ public class GameManager : MonoBehaviour
         StartLevel();
     }
 
-    private void StartLevel()
+    private void ShowStartScreen()
     {
+        state = State.Start;
+        startPanel.SetActive(true);
         gameOverPanel.SetActive(false);
         robberMarker.SetActive(false);
         darknessOverlay.SetActive(true);
+        levelText.SetActive(false);
+        timerText.SetActive(false);
+        spawner.Clear();
+        spotlight.Configure(baseRadius, baseSpeed, baseSmoothTime);
+        spotlight.ResetToCenter();
+    }
+
+    private void BeginRun()
+    {
+        level = 1;
+        StartLevel();
+    }
+
+    private void StartLevel()
+    {
+        startPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
+        robberMarker.SetActive(false);
+        darknessOverlay.SetActive(true);
+        levelText.SetActive(true);
+        timerText.SetActive(true);
 
         int decoys = Mathf.Min(maxDecoys, baseDecoys + decoysPerLevel * (level - 1));
         float radius = Mathf.Max(minRadius, baseRadius - radiusStep * (level - 1));
@@ -92,9 +129,9 @@ public class GameManager : MonoBehaviour
         spawner.Spawn(decoys);
 
         timeLeft = Mathf.Max(minTimeLimit, baseTimeLimit - timeLimitStep * (level - 1));
-        levelText.text = "Level " + level;
-        timerText.text = Mathf.CeilToInt(timeLeft).ToString();
-        playing = true;
+        levelLabel.text = "Level " + level;
+        timerLabel.text = Mathf.CeilToInt(timeLeft).ToString();
+        state = State.Playing;
     }
 
     private void TryCatch()
@@ -116,7 +153,7 @@ public class GameManager : MonoBehaviour
     private void Lose(string reason)
     {
         Flash(loseFlash);
-        playing = false;
+        state = State.GameOver;
         darknessOverlay.SetActive(false);
 
         robberMarker.transform.position = spawner.Robber.transform.position;
@@ -124,6 +161,13 @@ public class GameManager : MonoBehaviour
 
         gameOverText.text = reason + "\nYou reached level " + level + ".";
         gameOverPanel.SetActive(true);
+    }
+
+    private void PulsePrompt()
+    {
+        float a = 0.45f + 0.55f * Mathf.Abs(Mathf.Sin(Time.time * promptPulseSpeed));
+        Color c = promptText.color;
+        promptText.color = new Color(c.r, c.g, c.b, a);
     }
 
     private void Flash(Color c)
