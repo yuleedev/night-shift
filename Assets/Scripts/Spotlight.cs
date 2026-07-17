@@ -4,7 +4,7 @@ public class Spotlight : MonoBehaviour
 {
     [SerializeField] private float radius = 2.2f;
     [SerializeField] private float maskSpriteDiameter = 1f;
-    [SerializeField] private float maxSpeed = 10f;
+    [SerializeField] private float maxSpeed = 15f;
     [SerializeField] private float smoothTime = 0.7f;
     [SerializeField] private float arriveDistance = 0.15f;
     [SerializeField] private float minTargetDistance = 3f;
