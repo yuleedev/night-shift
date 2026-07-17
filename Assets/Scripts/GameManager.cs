@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerLabel;
     [SerializeField] private TextMeshProUGUI gameOverText;
     [SerializeField] private TextMeshProUGUI promptText;
+	[SerializeField] private AudioSource music;
 
     [SerializeField] private Image flashImage;
     [SerializeField] private Color winFlash = new Color(0.25f, 1f, 0.4f, 0.55f);
@@ -88,6 +89,7 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
+		if (!music.isPlaying) music.Play();
         level = 1;
         StartLevel();
     }
@@ -95,7 +97,7 @@ public class GameManager : MonoBehaviour
     private void ShowStartScreen()
     {
         state = State.Start;
-
+		if (!music.isPlaying) music.Play();
         if (introRoutine != null) StopCoroutine(introRoutine);
 
         startPanel.SetActive(true);
@@ -111,10 +113,10 @@ public class GameManager : MonoBehaviour
     }
 
     private void BeginRun()
-    {
-        level = 1;
-        StartLevel();
-    }
+	{
+    	level = 1;
+    	StartLevel();
+	}
 
     private void StartLevel()
     {
@@ -169,6 +171,7 @@ public class GameManager : MonoBehaviour
     {
         Flash(loseFlash);
         state = State.GameOver;
+		music.Stop();
 
         if (introRoutine != null) StopCoroutine(introRoutine);
 
