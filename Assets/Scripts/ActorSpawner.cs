@@ -11,11 +11,11 @@ public class ActorSpawner : MonoBehaviour
     [SerializeField] private int maxAttempts = 60;
 
     private Camera cam;
-    private readonly List<Actor> Spawned = new List<Actor>();
+    private readonly List<Actor> spawned = new List<Actor>();
     private readonly List<Vector2> used = new List<Vector2>();
     private float currentSeparation;
-    
-    public Actor Robber {get; private set;}
+
+    public Actor Robber { get; private set; }
 
     private void Awake()
     {
@@ -52,7 +52,7 @@ public class ActorSpawner : MonoBehaviour
     private Vector3 NextPosition()
     {
         float w = cam.orthographicSize * cam.aspect - padding.x;
-        float h = cam.orthographicSize - pading.y;
+        float h = cam.orthographicSize - padding.y;
 
         for (int i = 0; i < maxAttempts; i++)
         {
