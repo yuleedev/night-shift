@@ -20,6 +20,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gameOverText;
     [SerializeField] private TextMeshProUGUI promptText;
 	[SerializeField] private AudioSource music;
+	[SerializeField] private AudioSource sfx;
+	[SerializeField] private AudioClip startClip;
+	[SerializeField] private AudioClip missClip;
+	[SerializeField] private AudioClip catchClip;
 
     [SerializeField] private Image flashImage;
     [SerializeField] private Color winFlash = new Color(0.25f, 1f, 0.4f, 0.55f);
@@ -36,15 +40,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float radiusStep = 0.15f;
     [SerializeField] private float minRadius = 0.8f;
 
-    [SerializeField] private float baseSpeed = 3f;
-    [SerializeField] private float speedStep = 0.5f;
-    [SerializeField] private float maxSpeedCap = 9f;
+    [SerializeField] private float baseSpeed = 5f;
+    [SerializeField] private float speedStep = 0.75f;
+    [SerializeField] private float maxSpeedCap = 15f;
 
     [SerializeField] private float baseSmoothTime = 0.7f;
     [SerializeField] private float smoothTimeStep = 0.04f;
     [SerializeField] private float minSmoothTime = 0.25f;
 
-    [SerializeField] private float baseTimeLimit = 20f;
+    [SerializeField] private float baseTimeLimit = 30f;
     [SerializeField] private float timeLimitStep = 1f;
     [SerializeField] private float minTimeLimit = 8f;
 
@@ -63,7 +67,11 @@ public class GameManager : MonoBehaviour
     {
         if (state == State.Start)
         {
-            if (Input.GetKeyDown(KeyCode.Space)) BeginRun();
+            if (Input.GetKeyDown(KeyCode.Space))
+			{
+				sfx.PlayOneShot(startClip);
+				BeginRun();
+			} 
             return;
         }
 
@@ -84,7 +92,11 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space)) Restart();
+        if (Input.GetKeyDown(KeyCode.Space))
+		{
+			sfx.PlayOneShot(startClip);
+			Restart();
+		}
     }
 
     public void Restart()
@@ -158,6 +170,7 @@ public class GameManager : MonoBehaviour
         if (d <= spotlight.Radius)
         {
             Flash(winFlash);
+			sfx.PlayOneShot(catchClip);
             level++;
             StartLevel();
         }
@@ -168,21 +181,21 @@ public class GameManager : MonoBehaviour
     }
 
     private void Lose(string reason)
-    {
-        Flash(loseFlash);
-        state = State.GameOver;
-		music.Stop();
+	{
+    	Flash(loseFlash);
+    	sfx.PlayOneShot(missClip);
+    	state = State.GameOver;
 
-        if (introRoutine != null) StopCoroutine(introRoutine);
+    	if (introRoutine != null) StopCoroutine(introRoutine);
 
-        darknessOverlay.SetActive(false);
+    	darknessOverlay.SetActive(false);
 
-        robberMarker.transform.position = spawner.Robber.transform.position;
-        robberMarker.SetActive(true);
+    	robberMarker.transform.position = spawner.Robber.transform.position;
+    	robberMarker.SetActive(true);
 
-        gameOverText.text = reason + "\nYou reached level " + level + ".";
-        gameOverPanel.SetActive(true);
-    }
+    	gameOverText.text = reason + "\nYou reached level " + level + ".";
+    	gameOverPanel.SetActive(true);
+	}
 
     private void Flash(Color c)
     {
