@@ -1,4 +1,4 @@
-![thumbnail image with robber illuminated by flashlight](assets/art/thumbnail.png)
+![thumbnail image with robber illuminated by flashlight](Assets/Art/thumbnail.png)
 # night-shift
 in this game, you play as a guard (of an undisclosed location) using a flashlight to observe the premises. any figures conveniently dressed in a black beanie and black and white striped burglar costume should be reported right away! there seems to be quite a few other beings and things looming around, though, so make sure you don't catch the wrong culprit..
 
