@@ -118,7 +118,7 @@ public class GameManager : MonoBehaviour
         darknessOverlay.SetActive(true);
         levelText.SetActive(false);
         timerText.SetActive(false);
-        promptText.text = "Press Space to start";
+        promptText.text = "press SPACE to start";
         spawner.Clear();
         spotlight.Configure(baseRadius, baseSpeed, baseSmoothTime);
         spotlight.ResetToCenter();
